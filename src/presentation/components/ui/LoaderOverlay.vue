@@ -12,26 +12,26 @@ const internalProgress = ref(0)
 onMounted(() => {
   console.log('LoaderOverlay mounted')
   
-  // Safety timeout: if loader is still present after 5 seconds, force finish
+  // Safety timeout: if loader is still present after 10 seconds, force finish
   setTimeout(() => {
     if (appStore.isLoading) {
       console.warn('Loader safety timeout reached, forcing finish')
       handleComplete()
     }
-  }, 5000)
+  }, 10000)
 
   // Initial entrance
   gsap.from('.loader-content', {
     autoAlpha: 0,
-    y: 10,
-    duration: 1.5,
-    ease: 'power3.out'
+    y: 15,
+    duration: 2,
+    ease: 'power2.out'
   })
 
-  // Simulate loading progress
+  // Simulate loading progress - Slower for elegance and perceived depth
   gsap.to(internalProgress, {
     value: 1,
-    duration: 1.5,
+    duration: 4.5, // Increased duration for "refined" feeling
     ease: 'power1.inOut',
     onUpdate: () => {
       appStore.setLoadingProgress(internalProgress.value)
@@ -50,8 +50,8 @@ const handleComplete = () => {
   if (el) {
     gsap.to(el, {
       autoAlpha: 0,
-      duration: 0.8,
-      ease: 'power3.inOut',
+      duration: 1.5, // Slower fade out
+      ease: 'expo.inOut',
       onComplete: () => {
         console.log('Loader fade out complete, finishing loading state')
         appStore.finishLoading()
@@ -72,27 +72,28 @@ defineExpose({ handleComplete })
       <h1 class="loader-text">Une Collection de Poèmes</h1>
       
       <div class="curve-container">
-        <svg viewBox="0 0 200 100" class="bezier-curve">
-          <path 
-            d="M20,50 C60,10 140,90 180,50" 
-            fill="none" 
-            stroke="#e0e0e0" 
-            stroke-width="2" 
-            stroke-linecap="round"
-          />
-          <path 
-            ref="curvePath"
-            d="M20,50 C60,10 140,90 180,50" 
-            fill="none" 
-            stroke="#d4af37" 
-            stroke-width="3" 
-            stroke-linecap="round"
-            :style="{
-              strokeDasharray: 250,
-              strokeDashoffset: 250 - (loadingProgress * 250)
-            }"
-          />
-        </svg>
+          <svg viewBox="0 0 200 100" class="bezier-curve">
+            <path 
+              d="M20,50 C60,10 140,90 180,50" 
+              fill="none" 
+              stroke="rgba(61, 90, 58, 0.08)" 
+              stroke-width="1" 
+              stroke-linecap="round"
+            />
+            <path 
+              ref="curvePath"
+              d="M20,50 C60,10 140,90 180,50" 
+              fill="none" 
+              stroke="#3d5a3a" 
+              stroke-width="1.5" 
+              stroke-linecap="round"
+              :style="{
+                strokeDasharray: 250,
+                strokeDashoffset: 250 - (loadingProgress * 250)
+              }"
+            />
+          </svg>
+
       </div>
     </div>
   </div>
@@ -102,7 +103,7 @@ defineExpose({ handleComplete })
 .loader-overlay {
   position: fixed;
   inset: 0;
-  background-color: #fdfaf6;
+  background-color: #fdfaf6; // Refined white/cream
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,22 +114,24 @@ defineExpose({ handleComplete })
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2rem;
+  gap: 3rem;
 }
 
 .loader-text {
   font-family: 'Cormorant Garamond', serif;
   font-weight: 300;
-  font-size: 14px;
-  color: #1a1a1a;
-  letter-spacing: 0.2em;
+  font-size: 16px;
+  color: #3d5a3a; // Dark green for contrast
+  letter-spacing: 0.35em;
   text-transform: uppercase;
   margin: 0;
+  opacity: 0.8;
 }
 
 .curve-container {
-  width: 200px;
-  height: 100px;
+  width: 180px;
+  height: 90px;
+  opacity: 0.6;
 }
 
 .bezier-curve {
@@ -136,7 +139,7 @@ defineExpose({ handleComplete })
   height: 100%;
   
   path {
-    transition: stroke-dashoffset 0.3s ease-out;
+    transition: stroke-dashoffset 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 </style>

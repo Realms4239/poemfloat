@@ -54,14 +54,14 @@ export class MockPoemRepository implements IPoemRepository {
         particleType: 'leaf'
       }
     },
-      {
+    {
         id: '4',
         title: 'unworried',
         slug: 'unworried',
         symbol: '❊',
         content: [
           'This is a quiet orbit of change',
-          'and my way of transience.',
+          'and the quiet drift of transience.',
           'The morning is a pale glass.'
         ],
       theme: {

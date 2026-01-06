@@ -49,7 +49,7 @@ onMounted(async () => {
       <CustomCursor />
       <!-- 3D World (Canvas Layer) -->
       <ClientOnly>
-      <TresCanvas window-size clear-color="#050505">
+      <TresCanvas window-size clear-color="#0a0a09">
         <TresPerspectiveCamera :position="[0, 0, 10]" :look-at="[0, 0, 0]" />
         <MainScene />
       </TresCanvas>
@@ -65,7 +65,7 @@ onMounted(async () => {
 
 :root {
   --cream: #fdfaf6;
-  --dark: #1a1a1a;
+  --dark: #0a0a09;
 }
 
 * {
@@ -75,9 +75,9 @@ onMounted(async () => {
 }
 
 body {
-  background: var(--cream);
-  color: var(--dark);
-  font-family: 'Playfair Display', serif;
+  background: var(--dark);
+  color: var(--cream);
+  font-family: 'Cormorant Garamond', serif;
   overflow-x: hidden;
   
   &.is-loading {

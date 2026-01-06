@@ -1,5 +1,5 @@
-/// <reference types="@tresjs/nuxt" />
 /// <reference types="@pinia/nuxt" />
+/// <reference types="@tresjs/nuxt" />
 /// <reference path="types/builder-env.d.ts" />
 /// <reference types="nuxt" />
 /// <reference path="types/app-defaults.d.ts" />

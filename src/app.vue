@@ -2,7 +2,6 @@
 import { useAppStore } from '@/stores/appState'
 import { onMounted, computed, watch } from 'vue'
 import { useAudio } from '@/composables/useAudio'
-import CustomCursor from '@/components/CustomCursor.vue'
 import MainScene from '@/components/canvas/MainScene.vue'
 import LoaderOverlay from '@/presentation/components/ui/LoaderOverlay.vue'
 
@@ -31,13 +30,12 @@ onMounted(async () => {
 })
 </script>
 
-<template>
-  <div class="app-root">
-    <LoaderOverlay v-if="appStore.isLoading" />
-    
-    <CustomCursor />
-    
-    <!-- 3D World (Canvas Layer) -->
+  <template>
+    <div class="app-root">
+      <LoaderOverlay v-if="appStore.isLoading" />
+      
+      
+      <!-- 3D World (Canvas Layer) -->
     <ClientOnly>
       <div class="canvas-container">
         <TresCanvas window-size clear-color="#050505">

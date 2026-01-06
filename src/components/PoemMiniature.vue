@@ -76,11 +76,12 @@ defineEmits<{
 
   .poem-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 1.8rem;
-    font-weight: 400;
+    font-size: 1.6rem;
+    font-weight: 300;
     margin-bottom: 1.5rem;
     color: #1a1a1a;
-    transition: letter-spacing 0.6s ease;
+    letter-spacing: 0.1em;
+    transition: all 0.6s ease;
   }
 
   .poem-preview {

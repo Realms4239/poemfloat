@@ -83,231 +83,183 @@ function setupPinnedTimeline() {
         pin: true,
         scrub: 1.5,
         onUpdate: (self) => {
-          const p = self.progress
-          if (p < 0.05) appStore.setIntroStep(0)
-          else if (p < 0.18) appStore.setIntroStep(1)
-          else if (p < 0.32) appStore.setIntroStep(2)
-          else if (p < 0.46) appStore.setIntroStep(3)
-          else if (p < 0.60) appStore.setIntroStep(4)
-          else if (p < 0.74) appStore.setIntroStep(5)
-          else if (p < 0.88) appStore.setIntroStep(6)
-          else if (p < 0.94) appStore.setIntroStep(7)
-          else appStore.setIntroStep(8)
+            const p = self.progress
+            if (p < 0.05) appStore.setIntroStep(0)
+            else if (p < 0.16) appStore.setIntroStep(1)
+            else if (p < 0.28) appStore.setIntroStep(2)
+            else if (p < 0.40) appStore.setIntroStep(3)
+            else if (p < 0.52) appStore.setIntroStep(4)
+            else if (p < 0.64) appStore.setIntroStep(5)
+                    else if (p < 0.76) appStore.setIntroStep(5)
+                    else if (p < 0.83) appStore.setIntroStep(6) // Hold black for "This is a quiet orbit of"
+                    else if (p < 0.98) appStore.setIntroStep(7) // Unfold exactly when "change" is shown
+                    else appStore.setIntroStep(8)
+                  }
         }
-      }
 
-  })
-
-  gsap.fromTo('.scroll-prompt', { autoAlpha: 0 }, { autoAlpha: 1, duration: 2, delay: 1.5 })
-
-    const animateIn = (selector: string, startTime: number) => {
-      const el = stage.querySelector(selector)
-      if (!el) return
-      const chars = el.querySelectorAll('.char')
-      if (chars.length === 0) return
-      
-      mainTimeline
-        .set(el, { display: 'flex', visibility: 'visible' }, startTime)
-        .to(el, { autoAlpha: 1, duration: 0.01 }, startTime)
-        .fromTo(chars, {
-          opacity: 0,
-          filter: 'blur(30px)',
-          scale: 1.8,
-          y: 60
-        }, {
-          opacity: 1,
-          filter: 'blur(0px)',
-          scale: 1,
-          y: 0,
-          duration: 0.05,
-          stagger: 0.002,
-          ease: 'expo.out'
-        }, startTime + 0.002)
-    }
-
-    const animateOut = (selector: string, startTime: number) => {
-      const el = stage.querySelector(selector)
-      if (!el) return
-      const chars = el.querySelectorAll('.char')
-      
-      if (chars.length > 0) {
-        mainTimeline.to(chars, {
-          opacity: 0, 
-          filter: 'blur(20px)',
-          y: -60,
-          scale: 0.8,
-          duration: 0.04,
-          stagger: 0.0015,
-          ease: 'power2.in'
-        }, startTime)
-      }
-      
-      mainTimeline
-        .to(el, { autoAlpha: 0, duration: 0.02 }, startTime + 0.03)
-        .set(el, { display: 'none', visibility: 'hidden' }, startTime + 0.05)
-    }
-
-
-  // REFINED SEQUENCE - ABSOLUTELY NO OVERLAP
-  // Step 1: Spinning pulse
-  animateIn('.line-1', 0.05)
-  animateOut('.line-1', 0.16)
-
-  // Step 2: Unfolding breath
-  animateIn('.line-2', 0.19)
-  animateOut('.line-2', 0.30)
-
-  // Step 3: Cat's tail
-  animateIn('.line-3', 0.33)
-  animateOut('.line-3', 0.44)
-
-  // Step 4: Unworried
-  animateIn('.stanza-a', 0.47)
-  animateOut('.stanza-a', 0.58)
-
-  // Step 5: Stones
-  animateIn('.stanza-b', 0.61)
-  animateOut('.stanza-b', 0.72)
-
-  // Step 6: Tremble
-  const stanzaC = stage.querySelector('.stanza-c')
-  if (stanzaC) {
-    mainTimeline.set(stanzaC, { display: 'flex', visibility: 'visible' }, 0.75)
-    mainTimeline.to(stanzaC, { autoAlpha: 1, duration: 0.01 }, 0.75)
-    mainTimeline.fromTo(stanzaC.querySelectorAll('.char, .char-tremble'), {
-      opacity: 0,
-      filter: 'blur(30px)',
-      y: 40
-    }, {
-      opacity: 1,
-      filter: 'blur(0px)',
-      y: 0,
-      duration: 0.04,
-      stagger: 0.002,
-      ease: 'power3.out'
-    }, 0.752)
-    
-    const trembleChars = stanzaC.querySelectorAll('.char-tremble')
-    trembleChars.forEach((char, i) => {
-      mainTimeline.to(char, {
-        x: 'random(-6, 6)',
-        y: 'random(-6, 6)',
-        duration: 0.005,
-        repeat: 10,
-        yoyo: true,
-        ease: 'none'
-      }, 0.80 + (i * 0.001))
     })
-    animateOut('.stanza-c', 0.85)
-  }
 
-    // Step 7: FINALE - GODLIKE TRANSITION
-    const finale = stage.querySelector('.line-finale')
-    if (finale) {
-      mainTimeline.set(finale, { display: 'flex', visibility: 'visible' }, 0.89)
-      mainTimeline.to(finale, { autoAlpha: 1, duration: 0.01 }, 0.89)
-      
-      // "This is"
-      mainTimeline.fromTo(finale.querySelectorAll('.finale-1 .char'), {
+    gsap.fromTo('.scroll-prompt', { autoAlpha: 0 }, { autoAlpha: 1, duration: 2, delay: 1.5 })
+
+      const animateIn = (selector: string, startTime: number) => {
+        const el = stage.querySelector(selector)
+        if (!el) return
+        const chars = el.querySelectorAll('.char')
+        if (chars.length === 0) return
+        
+        mainTimeline
+          .set(el, { display: 'flex', visibility: 'visible' }, startTime)
+          .to(el, { autoAlpha: 1, duration: 0.01 }, startTime)
+          .fromTo(chars, {
+            opacity: 0,
+            filter: 'blur(30px)',
+            scale: 1.8,
+            y: 60
+          }, {
+            opacity: 1,
+            filter: 'blur(0px)',
+            scale: 1,
+            y: 0,
+            duration: 0.06,
+            stagger: 0.002,
+            ease: 'expo.out'
+          }, startTime + 0.002)
+      }
+
+      const animateOut = (selector: string, startTime: number) => {
+        const el = stage.querySelector(selector)
+        if (!el) return
+        const chars = el.querySelectorAll('.char')
+        
+        if (chars.length > 0) {
+          mainTimeline.to(chars, {
+            opacity: 0, 
+            filter: 'blur(20px)',
+            y: -60,
+            scale: 0.8,
+            duration: 0.05,
+            stagger: 0.0015,
+            ease: 'power2.in'
+          }, startTime)
+        }
+        
+        mainTimeline
+          .to(el, { autoAlpha: 0, duration: 0.02 }, startTime + 0.04)
+          .set(el, { display: 'none', visibility: 'hidden' }, startTime + 0.06)
+      }
+
+
+    // REFINED SEQUENCE - BALANCED SPACING
+    animateIn('.line-1', 0.05)
+    animateOut('.line-1', 0.14)
+
+    animateIn('.line-2', 0.17)
+    animateOut('.line-2', 0.26)
+
+    animateIn('.line-3', 0.29)
+    animateOut('.line-3', 0.38)
+
+    animateIn('.stanza-a', 0.41)
+    animateOut('.stanza-a', 0.50)
+
+    animateIn('.stanza-b', 0.53)
+    animateOut('.stanza-b', 0.62)
+
+    const stanzaC = stage.querySelector('.stanza-c')
+    if (stanzaC) {
+      mainTimeline.set(stanzaC, { display: 'flex', visibility: 'visible' }, 0.65)
+      mainTimeline.to(stanzaC, { autoAlpha: 1, duration: 0.01 }, 0.65)
+      mainTimeline.fromTo(stanzaC.querySelectorAll('.char, .char-tremble'), {
         opacity: 0,
-        filter: 'blur(15px)',
+        filter: 'blur(30px)',
         y: 40
       }, {
-        opacity: 0.8,
-        filter: 'blur(0px)',
-        y: 0,
-        color: '#444', 
-        duration: 0.02,
-        stagger: 0.002,
-        ease: 'power2.out'
-      }, 0.895)
-      
-      // "a quiet orbit of changes"
-      mainTimeline.fromTo(finale.querySelectorAll('.finale-2 .char'), {
-        opacity: 0,
-        filter: 'blur(40px)',
-        y: 60,
-        scale: 1.5
-      }, {
         opacity: 1,
         filter: 'blur(0px)',
         y: 0,
-        scale: 1,
-        duration: 0.04,
-        stagger: 0.002,
-        ease: 'expo.out'
-      }, 0.915) 
-
-      // THE BUMP - Visual impact and pause
-      mainTimeline.to('.haiku-stage', {
-        scale: 1.05,
-        duration: 0.01,
-        ease: 'power4.out',
-        yoyo: true,
-        repeat: 1
-      }, 0.935)
-      
-      // "and my way of" - TRACING EFFECT
-      mainTimeline.fromTo(finale.querySelectorAll('.finale-3-part .char'), {
-        opacity: 0,
-        filter: 'blur(10px)',
-        x: -20,
-        skewX: -20
-      }, {
-        opacity: 1,
-        filter: 'blur(0px)',
-        x: 0,
-        skewX: 0,
-        color: '#1a1a1a', 
-        duration: 0.04,
-        stagger: 0.003,
-        ease: 'back.out(1.7)'
-      }, 0.945) 
-      
-      // "transience" - TRACING UP / SURFACE EFFECT
-      mainTimeline.fromTo(finale.querySelectorAll('.transience-word .char'), {
-        opacity: 0,
-        filter: 'blur(20px)',
-        y: 100,
-        rotateX: -90,
-        scaleY: 2
-      }, {
-        opacity: 1,
-        filter: 'blur(0px)',
-        y: 0,
-        rotateX: 0,
-        scaleY: 1,
-        color: '#1a1a1a',
         duration: 0.06,
-        stagger: 0.005,
-        ease: 'expo.out'
-      }, 0.958)
-      
-      // Climax Bloom & Disintegration Start
-      mainTimeline.to(finale.querySelectorAll('.transience-word .char'), {
-        color: '#2d5a27', 
-        textShadow: '0 0 50px rgba(45, 90, 39, 0.8)',
-        scale: 1.2,
-        duration: 0.03,
         stagger: 0.002,
-        ease: 'power4.inOut'
-      }, 0.985)
-
-      // DISINTEGRATE - The words fade and blur as particles take over in 3D
-      mainTimeline.to(finale.querySelectorAll('.char'), {
-        opacity: 0,
-        filter: 'blur(30px) brightness(2)',
-        scale: 1.5,
-        y: -100,
-        stagger: {
-          each: 0.001,
-          from: 'random'
-        },
-        duration: 0.02
-      }, 0.995)
-  
-      mainTimeline.to(finale, { autoAlpha: 0, duration: 0.005 }, 0.999)
+        ease: 'power3.out'
+      }, 0.652)
+      
+      const trembleChars = stanzaC.querySelectorAll('.char-tremble')
+      trembleChars.forEach((char, i) => {
+        mainTimeline.to(char, {
+          x: 'random(-6, 6)',
+          y: 'random(-6, 6)',
+          duration: 0.005,
+          repeat: 12,
+          yoyo: true,
+          ease: 'none'
+        }, 0.70 + (i * 0.001))
+      })
+      animateOut('.stanza-c', 0.76)
     }
+
+          // Step 7: FINALE - REFINED MOMENTUM
+          const finale = stage.querySelector('.line-finale')
+          if (finale) {
+            mainTimeline.set(finale, { display: 'flex', visibility: 'visible' }, 0.77)
+            mainTimeline.to(finale, { autoAlpha: 1, duration: 0.01 }, 0.77)
+            
+            // Ensure finale-3 is hidden initially
+            mainTimeline.set(finale.querySelector('.finale-3'), { autoAlpha: 0 }, 0.77)
+            
+              // 1. "This is a quiet orbit of change" (on black)
+              mainTimeline.fromTo(finale.querySelectorAll('.finale-2 .char'), {
+                opacity: 0,
+                filter: 'blur(20px)',
+                y: 30,
+              }, {
+                opacity: 1,
+                filter: 'blur(0px)',
+                y: 0,
+                duration: 0.05,
+                stagger: 0.002,
+                ease: 'power2.out'
+              }, 0.78)
+
+              // Fade out finale-2 before finale-3
+              mainTimeline.to(finale.querySelectorAll('.finale-2 .char'), {
+                opacity: 0,
+                filter: 'blur(15px)',
+                y: -20,
+                duration: 0.03,
+                stagger: 0.001,
+                ease: 'power2.in'
+              }, 0.85)
+              
+              // 2. " and my way of transience" (on bright)
+              // SYNCED UNFOLD: Happens at 0.865
+              mainTimeline.to(finale.querySelector('.finale-3'), { autoAlpha: 1, duration: 0.01 }, 0.875)
+              
+                mainTimeline.fromTo(finale.querySelectorAll('.finale-3 .char'), {
+                  opacity: 0,
+                  filter: 'blur(20px)',
+                  y: 30,
+                }, {
+                  opacity: 1,
+                  filter: 'blur(0px)',
+                  y: 0,
+                  duration: 0.06,
+                  stagger: 0.002,
+                  ease: 'power2.out'
+                }, 0.88)
+        
+        
+              // Exit animations at the very end
+              mainTimeline.to(finale.querySelectorAll('.finale-3 .char'), {
+                opacity: 0,
+                filter: 'blur(25px)',
+                y: -60,
+                stagger: 0.001,
+                duration: 0.03,
+                ease: 'power2.in'
+              }, 0.985)
+            
+          mainTimeline.to(finale, { autoAlpha: 0, duration: 0.005 }, 0.999)
+      }
+
 
 }
 
@@ -319,8 +271,8 @@ onUnmounted(() => {
 <template>
   <div class="page-home">
     <div v-if="appStore.introStep === 0 && introStarted" class="collection-nav" @click="scrollToCollection">
-      <img src="/eni-icon.svg" alt="Logo" class="nav-logo" />
       <span class="collection-label">COLLECTION</span>
+      <img src="/eni-icon.png" alt="Logo" class="nav-logo" />
     </div>
 
     <div v-show="showScrollPrompt" class="scroll-prompt">
@@ -356,14 +308,10 @@ onUnmounted(() => {
           </p>
         </div>
         
-        <div class="poem-line line-finale dead-center hero">
-          <div class="finale-1 faint" v-html="wrapChars('This is')"></div>
-          <div class="finale-2 greeny-text" v-html="wrapChars('a quiet orbit of changes')"></div>
-          <div class="finale-3 smoke-text">
-            <span class="finale-3-part" v-html="wrapChars('and my way of ')"></span>
-            <span class="transience-word" v-html="wrapChars('transience')"></span>
-          </div>
-        </div>
+            <div class="poem-line line-finale dead-center hero">
+                <div class="finale-2 greeny-text" v-html="wrapChars('This is a quiet orbit of change')"></div>
+                <div class="finale-3 smoke-text" v-html="wrapChars(' and my way of transience')"></div>
+              </div>
       </div>
     </div>
 
@@ -371,7 +319,7 @@ onUnmounted(() => {
       <div class="gallery-content">
         <div class="gallery-header">
           <h2 class="gallery-title">The Collection</h2>
-          <p class="gallery-subtitle">A gathering of verse</p>
+          <p class="gallery-subtitle">A GATHERING OF VERSE</p>
         </div>
         
         <div class="miniatures-wrapper">
@@ -411,15 +359,16 @@ onUnmounted(() => {
   z-index: 30;
   pointer-events: none;
   
-  span {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.4em;
-    color: #1a1a1a;
-    opacity: 0.6;
-  }
+    span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.4em;
+      color: #3d5a3a;
+      opacity: 0.6;
+    }
 }
+
 
 .haiku-stage {
   width: 100%;
@@ -473,47 +422,31 @@ onUnmounted(() => {
 }
 
 .faint {
-  opacity: 0.5;
+  opacity: 0.6;
   font-size: 0.4em;
   letter-spacing: 0.5em;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
-  color: #fafafa;
+  color: #3d5a3a;
+}
+
+.finale-3 {
+  // Matched with finale-2
 }
 
 .smoke-text {
-  font-style: italic;
-  font-weight: 300;
+  color: #3d5a3a;
+  font-weight: 400;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.3em;
-  margin-top: 0.5rem;
-  text-shadow: 0 4px 25px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5); // Stronger contrast
-  color: #fff;
+  gap: 0.35em;
+  letter-spacing: 0.05em;
 }
 
 .greeny-text {
-  color: #4ea14a;
-  text-shadow: 0 0 25px rgba(78, 161, 74, 0.5), 0 0 50px rgba(0,0,0,0.5);
+  color: #3d5a3a;
   font-weight: 400;
-}
-
-.transience-word {
-  display: inline-block;
-  will-change: transform, filter, opacity, color;
-  color: #fafafa;
-  font-weight: 400;
-  :deep(.char) {
-    text-shadow: 0 0 20px rgba(250, 250, 250, 0.4);
-  }
-}
-
-.finale-3-part {
-  display: inline-block;
-  color: #f0f0f0; // Slightly off-white for better contrast
-  font-weight: 300;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.4);
 }
 
 .char-tremble { display: inline-block; }
@@ -527,25 +460,31 @@ onUnmounted(() => {
   background: transparent;
   padding: 15vh 0;
   
-  .gallery-header {
-    text-align: center;
-    margin-bottom: 6rem;
-    .gallery-title {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(4rem, 12vw, 8rem);
-      font-weight: 300;
-      color: #1a1a1a;
-      letter-spacing: -0.02em;
+    .gallery-header {
+      text-align: center;
+      margin-bottom: 8rem;
+      
+      .gallery-title {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: clamp(3.5rem, 8vw, 6rem);
+        font-weight: 200;
+        color: #3d5a3a;
+        letter-spacing: 0.35em;
+        line-height: 1.1;
+        text-transform: uppercase;
+        margin-bottom: 2rem;
+      }
+      
+      .gallery-subtitle {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.85rem;
+        color: #3d5a3a;
+        letter-spacing: 0.8em;
+        text-transform: uppercase;
+        opacity: 0.6;
+        font-weight: 300;
+      }
     }
-    .gallery-subtitle {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.5rem;
-      font-style: italic;
-      color: #333;
-      letter-spacing: 0.2em;
-      opacity: 0.8;
-    }
-  }
 
   .miniatures-wrapper {
     width: 100%;
@@ -567,15 +506,15 @@ onUnmounted(() => {
 .transport-overlay {
   position: fixed;
   inset: 0;
-  background: #faf8f5;
+  background: #fdfaf6;
   z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
   .transport-line {
-    width: 2px;
+    width: 1px;
     height: 0;
-    background: #1a1a1a;
+    background: #3d5a3a;
     animation: transportGrow 1.5s cubic-bezier(0.77, 0, 0.175, 1) forwards;
   }
 }
@@ -591,44 +530,49 @@ onUnmounted(() => {
   inset: 0;
   z-index: 100;
   pointer-events: none;
-  opacity: 0.1;
+  opacity: 0.06;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 .collection-nav {
   position: fixed;
-  top: 3rem;
+  top: 3.5rem;
   right: 4rem;
   display: flex;
   align-items: center;
   gap: 1.2rem;
   z-index: 100;
   cursor: pointer;
-  mix-blend-mode: difference;
+  transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
   
   &:hover {
-    .collection-label { color: #4ea14a; }
+    transform: translateX(10px);
+    .collection-label { 
+      letter-spacing: 0.65em;
+      opacity: 1;
+    }
     .nav-logo {
-      filter: brightness(1.2) sepia(1) hue-rotate(70deg) saturate(2);
-      transform: scale(1.1);
+      transform: rotate(90deg) scale(1.1);
     }
   }
 
   .nav-logo {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
-    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    filter: brightness(2) invert(1);
+    transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+    filter: sepia(1) hue-rotate(70deg) saturate(1.5);
   }
 
   .collection-label {
     font-family: 'Cormorant Garamond', serif;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 300;
-    letter-spacing: 0.45em;
-    color: #fafafa;
-    transition: color 0.5s ease;
+    letter-spacing: 0.5em;
+    color: #3d5a3a;
+    opacity: 0.8;
+    text-transform: uppercase;
+    transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 </style>
