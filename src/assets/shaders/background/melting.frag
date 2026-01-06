@@ -9,21 +9,12 @@ uniform float uTurbulence;
 uniform float uBrightness;
 varying vec2 vUv;
 
-// Rotation matrix
-mat2 rot(float a) {
-    float s = sin(a);
-    float c = cos(a);
-    return mat2(c, -s, s, c);
-}
-
-// Better noise: Hash function for FBM
+// Simplified hash for performance
 float hash(vec2 p) {
-    p = fract(p * vec2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-// Value noise with smooth interpolation
+// Simple value noise
 float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -35,57 +26,41 @@ float noise(vec2 p) {
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// Fractional Brownian Motion (FBM)
+// Simplified FBM with only 3 octaves for mobile performance
 float fbm(vec2 p) {
     float v = 0.0;
     float a = 0.5;
-    vec2 shift = vec2(100.0);
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 3; ++i) {
         v += a * noise(p);
-        p = rot(0.5) * p * 2.0 + shift;
+        p = p * 2.0 + vec2(10.0);
         a *= 0.5;
     }
     return v;
 }
 
-// Domain Warping for liquid effect
-float pattern(vec2 p, out vec2 q, out vec2 r) {
-    q = vec2(fbm(p + vec2(0.0, 0.0)), fbm(p + vec2(5.2, 1.3)));
-    r = vec2(fbm(p + 4.0 * q + vec2(1.7, 9.2) + uTime * 0.1), fbm(p + 4.0 * q + vec2(8.3, 2.8) + uTime * 0.126));
-    return fbm(p + 4.0 * r);
-}
-
 void main() {
-    vec2 p = vUv * 3.0;
-    vec2 q, r;
-    float f = pattern(p, q, r);
+    // "Roaming ink" effect using domain warping with reduced complexity
+    vec2 p = vUv * 2.0;
+    float t = uTime * 0.15;
     
-    // SECONDARY LAYER (Ghost layer for depth)
-    vec2 q2, r2;
-    float f_ghost = pattern(p * 0.5 + uTime * 0.05, q2, r2);
+    vec2 q = vec2(fbm(p + t), fbm(p + vec2(5.2, 1.3) - t));
+    vec2 r = vec2(fbm(p + 3.0 * q + vec2(1.7, 9.2) + t * 0.5), fbm(p + 3.0 * q + vec2(8.3, 2.8) + t * 0.3));
+    float f = fbm(p + 3.0 * r);
     
-    // Base color mixing with domain warping results
-    vec3 color = mix(uColorA, uColorB, clamp(f * f * 4.0, 0.0, 1.0));
+    // Smooth ink-like color mixing
+    vec3 color = mix(uColorA, uColorB, clamp(f * f * 3.0, 0.0, 1.0));
     color = mix(color, uColorC, clamp(length(q), 0.0, 1.0));
     color = mix(color, uColorD, clamp(length(r.x), 0.0, 1.0));
     
-    // Blend in the ghost layer
-    color = mix(color, uColorA, f_ghost * 0.15);
-    
-    // Add a "sheen" or specular highlight
-    float sheen = pow(1.0 - f, 3.0);
-    color += sheen * 0.1 * uColorA;
-    
-    // Subtle chromatic aberration effect in the noise
-    float f2 = pattern(p + 0.01, q, r);
-    color.r = mix(color.r, uColorC.r, clamp(f2 - f, 0.0, 1.0) * 2.0);
+    // Add subtle depth
+    color += (f * 0.05);
     
     // Soft vignette
     float dist = length(vUv - 0.5);
-    color *= smoothstep(1.2, 0.2, dist);
+    color *= smoothstep(1.3, 0.4, dist);
     
-    // Apply brightness (for the bump)
-    color *= uBrightness;
+    // Apply brightness and turbulence scaling
+    color *= uBrightness + (f * uTurbulence * 0.5);
     
     gl_FragColor = vec4(color, 1.0);
 }

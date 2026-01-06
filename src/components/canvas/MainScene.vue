@@ -268,18 +268,6 @@ const showParticles = computed(() => appStore.introStep >= 7)
       />
     </TresMesh>
 
-    <TresMesh :scale="[80, 80, 1]" :position="[0, 0, -12]" :rotation="[0, 0, 0.5]">
-      <TresPlaneGeometry :args="[1, 1]" />
-      <TresShaderMaterial
-        :vertex-shader="meltingVert"
-        :fragment-shader="meltingFrag"
-        :uniforms="uniforms"
-        :transparent="true"
-        :opacity="0.25"
-        :side="DoubleSide"
-      />
-    </TresMesh>
-
     <TresMesh :position="[0, 1.8, -4]" :scale="[15, 8, 1]">
       <TresPlaneGeometry :args="[1, 1]" />
       <TresShaderMaterial

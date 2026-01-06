@@ -52,7 +52,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ],
         link: [
-          { rel: 'icon', type: 'image/png', href: '/cat-paw.png' },
+          { rel: 'icon', type: 'image/png', href: '/paw-logo.png' },
           { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Italiana&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap' }
         ]
     }

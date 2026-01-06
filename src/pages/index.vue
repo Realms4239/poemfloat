@@ -272,7 +272,7 @@ onUnmounted(() => {
   <div class="page-home">
     <div v-if="appStore.introStep === 0 && introStarted" class="collection-nav" @click="scrollToCollection">
       <span class="collection-label">COLLECTION</span>
-      <img src="/eni-icon.png" alt="Logo" class="nav-logo" />
+      <img src="/paw-logo.png" alt="Paw Logo" class="nav-logo" />
     </div>
 
     <div v-show="showScrollPrompt" class="scroll-prompt">
@@ -388,38 +388,51 @@ onUnmounted(() => {
   position: absolute;
   font-family: 'Cormorant Garamond', serif;
   font-weight: 300;
-  font-size: clamp(1.1rem, 2.6vw, 1.8rem);
+  font-size: clamp(1.2rem, 4vw, 1.8rem);
   color: #fafafa;
-  line-height: 1.6;
-  max-width: 80ch;
+  line-height: 1.4;
+  width: 85%;
+  max-width: 60ch;
   will-change: transform, opacity, filter;
   opacity: 0;
   visibility: hidden;
   display: none;
+  overflow-wrap: break-word;
+  word-break: break-word;
   
   p { margin: 0; }
   
   :deep(.char) {
     display: inline-block;
     will-change: transform, filter, opacity;
-    &.space { width: 0.35em; }
+    &.space { width: 0.25em; }
   }
 
-  &.center-left { top: 50%; left: 10%; transform: translateY(-50%); text-align: left; }
-  &.center-right { top: 50%; right: 10%; transform: translateY(-50%); text-align: right; }
-  &.top-center { top: 25%; left: 50%; transform: translateX(-50%); text-align: center; }
+  &.center-left { top: 40%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  &.center-right { top: 60%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+  &.top-center { top: 30%; left: 50%; transform: translateX(-50%); text-align: center; }
   &.dead-center { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
   &.heavy { font-weight: 500; letter-spacing: -0.01em; }
   &.hero {
-    font-size: clamp(1.5rem, 4.5vw, 2.6rem);
+    font-size: clamp(1.4rem, 6vw, 2.4rem);
     width: 90%;
     max-width: 1200px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.2rem;
+    gap: 0.8rem;
   }
 }
+
+@media (min-width: 768px) {
+  .poem-line {
+    width: auto;
+    font-size: clamp(1.1rem, 2.6vw, 1.8rem);
+    &.center-left { top: 50%; left: 10%; transform: translateY(-50%); text-align: left; }
+    &.center-right { top: 50%; right: 10%; transform: translateY(-50%); text-align: right; }
+  }
+}
+
 
 .faint {
   opacity: 0.6;
@@ -447,6 +460,23 @@ onUnmounted(() => {
 .greeny-text {
   color: #3d5a3a;
   font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .collection-nav {
+    top: 1.5rem;
+    right: 1.5rem;
+    gap: 0.8rem;
+    .collection-label { display: none; }
+  }
+  
+  .gallery-section .gallery-header {
+    margin-bottom: 4rem;
+    .gallery-title {
+      font-size: clamp(2.2rem, 10vw, 3.5rem);
+      letter-spacing: 0.2em;
+    }
+  }
 }
 
 .char-tremble { display: inline-block; }
