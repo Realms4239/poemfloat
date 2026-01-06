@@ -1,0 +1,14 @@
+
+> dev
+> nuxt dev
+
+[90m|[39m
+[34m•[39m  [32mNuxt [1m3.20.2[22m[39m[90m (with [39m[90mNitro [1m2.12.9[22m[39m[90m, Vite [1m7.3.0[22m[39m[90m and Vue [1m3.5.26[22m[39m[90m)[39m
+
+[41m[30m ERROR [39m[49m [uncaughtException] listen EADDRINUSE: address already in use ::1:3000
+
+    [90mat [39mServer.setupListenHandle [as _listen2] ([36mnode:net:1940:16[39m)
+    [90mat [39mlistenInCluster ([36mnode:net:1997:12[39m)
+    [90mat [39mGetAddrInfoReqWrap.callback ([36mnode:net:2206:7[39m)
+    [90mat [39mGetAddrInfoReqWrap.onlookupall [as oncomplete] ([36mnode:dns:133:8[39m)
+

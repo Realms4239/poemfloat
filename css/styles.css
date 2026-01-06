@@ -1,0 +1,615 @@
+/* Réinitialisation de base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/*----------------------------------------------*/
+
+/* Variables CSS globales */
+:root {
+    --primary-color: green;
+    --secondary-color: #996565;
+    --text-color: #333;
+    --background-color: #fff;
+    --header-bg-color: rgba(0, 0, 0, 0.7);
+    --hover-bg-color: rgba(0, 0, 0, 0.9);
+    --font-family: 'Roboto', sans-serif;
+    --border-radius: 10px;
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --hover-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    --button-hover-color: rgba(255, 255, 255, 0.2);
+    --link-hover-color: rgba(255, 255, 255, 0.5);
+}
+
+/*----------------------------------------------*/
+
+/* Thème sombre */
+body.dark-theme {
+    --primary-color: #996565;
+    --secondary-color: green;
+    --text-color: #e0e0e0;
+    --background-color: #121212;
+    --header-bg-color: rgba(255, 255, 255, 0.1);
+    --hover-bg-color: rgba(255, 255, 255, 0.2);
+}
+
+/*----------------------------------------------*/
+
+/* Styles généraux du corps */
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: var(--text-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 2s ease-in;
+}
+
+/*----------------------------------------------*/
+
+/* Styles de l'en-tête */
+header {
+    background: var(--header-bg-color);
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 800px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+header:hover {
+    background: var(--hover-bg-color);
+    box-shadow: var(--hover-box-shadow);
+}
+
+h1 {
+    margin: 0;
+    font-size: 2.5em;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/*----------------------------------------------*/
+
+
+/* Bouton de bascule du thème */
+#theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.3s ease;
+}
+
+#theme-toggle:hover {
+    transform: scale(1.5);
+}
+
+/*----------------------------------------------*/
+
+/* Bouton supplémentaire */
+#eni-link {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.3s ease;
+}
+
+#eni-link:hover {
+    transform: scale(1.5);
+}
+
+#eni-link a {
+    display: flex;
+    align-items: center;
+}
+
+#eni-link img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s ease;
+}
+
+#eni-link:hover img {
+    transform: rotate(15deg);
+}
+
+/* Bouton de retour avec hover pulse */
+@-webkit-keyframes hvr-icon-pulse {
+    25% {
+        -webkit-transform: scale(1.3);
+        transform: scale(1.3);
+    }
+
+    75% {
+        -webkit-transform: scale(0.8);
+        transform: scale(0.8);
+    }
+}
+
+@keyframes hvr-icon-pulse {
+    25% {
+        -webkit-transform: scale(1.3);
+        transform: scale(1.3);
+    }
+
+    75% {
+        -webkit-transform: scale(0.8);
+        transform: scale(0.8);
+    }
+}
+
+.cat-paw {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
+    outline: none;
+    transition: transform 0.3s ease;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+}
+
+.cat-paw img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s ease;
+}
+.cat-paw {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-transition-timing-function: ease-out;
+    transition-timing-function: ease-out;
+}
+
+.cat-paw:hover,
+.cat-paw:focus,
+.cat-paw:active {
+    -webkit-animation-name: hvr-icon-pulse;
+    animation-name: hvr-icon-pulse;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+}
+/*----------------------------------------------*/
+
+/* Drop de h2 */
+@-webkit-keyframes hvr-icon-drop {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0;
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+
+    51%,
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes hvr-icon-drop {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 0;
+        -webkit-transform: translateY(-100%);
+        transform: translateY(-100%);
+    }
+
+    51%,
+    100% {
+        opacity: 1;
+    }
+}
+
+.drop:hover{
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+}
+
+.drop:hover{
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.drop:hover,
+.drop:focus,
+.drop:active {
+    opacity: 0;
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-animation-name: hvr-icon-drop;
+    animation-name: hvr-icon-drop;
+    -webkit-animation-duration: 0.5s;
+    animation-duration: 0.5s;
+    -webkit-animation-delay: 0.3s;
+    animation-delay: 0.3s;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-timing-function: ease-in-out;
+    animation-timing-function: ease-in-out;
+    -webkit-animation-timing-function: cubic-bezier(0.52, 1.64, 0.37, 0.66);
+    animation-timing-function: cubic-bezier(0.52, 1.64, 0.37, 0.66);
+}
+
+/*----------------------------------------------*/
+
+/* Poème Bob */
+
+@-webkit-keyframes hvr-icon-bob {
+    0% {
+        -webkit-transform: translateY(-6px);
+        transform: translateY(-6px);
+    }
+
+    50% {
+        -webkit-transform: translateY(-2px);
+        transform: translateY(-2px);
+    }
+
+    100% {
+        -webkit-transform: translateY(-6px);
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes hvr-icon-bob {
+    0% {
+        -webkit-transform: translateY(-6px);
+        transform: translateY(-6px);
+    }
+
+    50% {
+        -webkit-transform: translateY(-2px);
+        transform: translateY(-2px);
+    }
+
+    100% {
+        -webkit-transform: translateY(-6px);
+        transform: translateY(-6px);
+    }
+}
+
+@-webkit-keyframes hvr-icon-bob-float {
+    100% {
+        -webkit-transform: translateY(-6px);
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes hvr-icon-bob-float {
+    100% {
+        -webkit-transform: translateY(-6px);
+        transform: translateY(-6px);
+    }
+}
+
+.bob:hover {
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+}
+
+.bob:hover {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+.bob:hover,
+.bob:hover,
+.bob:hover {
+    -webkit-animation-name: hvr-icon-bob-float, hvr-icon-bob;
+    animation-name: hvr-icon-bob-float, hvr-icon-bob;
+    -webkit-animation-duration: .3s, 1.5s;
+    animation-duration: .3s, 1.5s;
+    -webkit-animation-delay: 0s, .3s;
+    animation-delay: 0s, .3s;
+    -webkit-animation-timing-function: ease-out, ease-in-out;
+    animation-timing-function: ease-out, ease-in-out;
+    -webkit-animation-iteration-count: 1, infinite;
+    animation-iteration-count: 1, infinite;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-direction: normal, alternate;
+    animation-direction: normal, alternate;
+}
+
+/*----------------------------------------------*/
+
+/* Contenu principal */
+main {
+    max-width: 800px;
+    margin: 20px auto;
+    background: var(--background-color);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    animation: slideIn 1.5s ease-out;
+}
+
+/* Liens et contenu caché */
+#favorite {
+    text-decoration: none;
+    color: green;
+}
+
+#fav-content {
+    display: none;
+}
+
+
+/* Contenu des poèmes */
+.main-poem h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+.main-poem p,
+pre {
+    font-size: 1.2em;
+    margin-bottom: 20px;
+    line-height: 1.8;
+    text-align: justify;
+}
+
+.poem-list {
+    margin-top: 30px;
+}
+
+.poem-list h2 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: var(--secondary-color);
+}
+
+.poem-list p {
+    padding-left: 30%;
+}
+
+.poem-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+}
+
+.poem-item.scrolled {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.poem-item:hover {
+    transform: translateX(10px);
+    box-shadow: var(--hover-box-shadow);
+}
+
+.poem-item img {
+    max-width: 100px;
+    border-radius: var(--border-radius);
+    margin-right: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.poem-item img:hover {
+    transform: scale(1.05);
+    box-shadow: var(--hover-box-shadow);
+}
+
+.poem-item h3 {
+    margin-bottom: 5px;
+}
+
+.poem-item a {
+    text-decoration: none;
+    color: var(--text-color);
+    font-weight: 700;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.poem-item a:hover {
+    color: var(--primary-color);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.poem-item p {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Styles du pied de page */
+footer {
+    margin-top: 20px;
+    padding: 10px 0;
+    background: var(--header-bg-color);
+    color: #fff;
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+footer:hover {
+    background: var(--hover-bg-color);
+    box-shadow: var(--hover-box-shadow);
+}
+
+/* Design réactif pour les écrans de moins de 768 pixels de largeur */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    header {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    main {
+        margin: 10px auto;
+        padding: 15px;
+    }
+
+    .main-poem h2 {
+        font-size: 1.5em;
+    }
+
+    .main-poem p,
+    pre {
+        font-size: 1em;
+    }
+
+    .poem-list h2 {
+        font-size: 1.3em;
+    }
+
+    .poem-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .poem-item img {
+        max-width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .poem-item h3 {
+        font-size: 1.2em;
+    }
+
+    .poem-item p {
+        font-size: 0.85em;
+    }
+}
+
+/* Design réactif pour les écrans de moins de 480 pixels de largeur */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8em;
+    }
+
+    .main-poem h2 {
+        font-size: 1.2em;
+    }
+
+    .main-poem p {
+        font-size: 0.9em;
+    }
+
+    .poem-list h2 {
+        font-size: 1.1em;
+    }
+
+    .poem-item h3 {
+        font-size: 1em;
+    }
+
+    .poem-item p {
+        font-size: 0.8em;
+    }
+}
+
+/* Animations de fondu en entrée et de glissement */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
+
+
+
+/* Pseudo-éléments décoratifs */
+header::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 5px;
+    background: var(--primary-color);
+    margin: 10px auto 0;
+    border-radius: var(--border-radius);
+}
+
+.poem-item::before {
+    content: '⋆˚';
+    display: block;
+    margin-right: 10px;
+    font-size: 1.2em;
+    color: var(--secondary-color);
+}
+
+main::before {
+    content: '🌱';
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: var(--primary-color);
+}
