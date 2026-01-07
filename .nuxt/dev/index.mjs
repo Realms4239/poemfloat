@@ -1343,7 +1343,7 @@ async function errorHandler(error, event) {
 
 const rootDir = "C:/Users/Airis/orchids-projects/first-personal-website";
 
-const appHead = {"meta":[{"charset":"utf-8"},{"name":"viewport","content":"width=device-width, initial-scale=1"}],"link":[{"rel":"icon","type":"image/png","href":"/cat-paw.png"},{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Italiana&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"}],"style":[],"script":[],"noscript":[],"title":"Une Collection de Poèmes"};
+const appHead = {"meta":[{"charset":"utf-8"},{"name":"viewport","content":"width=device-width, initial-scale=1"}],"link":[{"rel":"icon","type":"image/png","href":"/paw-logo.png"},{"rel":"stylesheet","href":"https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Italiana&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"}],"style":[],"script":[],"noscript":[],"title":"Une Collection de Poèmes"};
 
 const appRootTag = "div";
 

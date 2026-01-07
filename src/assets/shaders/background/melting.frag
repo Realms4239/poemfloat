@@ -1,6 +1,8 @@
 precision highp float;
 
 uniform float uTime;
+uniform vec2 uMouse;
+uniform float uPlaygroundMode;
 uniform vec3 uColorA;
 uniform vec3 uColorB;
 uniform vec3 uColorC;
@@ -9,12 +11,12 @@ uniform float uTurbulence;
 uniform float uBrightness;
 varying vec2 vUv;
 
-// Simplified hash for performance
 float hash(vec2 p) {
-    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p, p + 45.32);
+    return fract(p.x * p.y);
 }
 
-// Simple value noise
 float noise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
@@ -26,41 +28,88 @@ float noise(vec2 p) {
     return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
 }
 
-// Simplified FBM with only 3 octaves for mobile performance
 float fbm(vec2 p) {
     float v = 0.0;
     float a = 0.5;
     for (int i = 0; i < 3; ++i) {
         v += a * noise(p);
-        p = p * 2.0 + vec2(10.0);
+        p = p * 2.1 + vec2(1.5);
         a *= 0.5;
     }
     return v;
 }
 
+float fbm_high(vec2 p) {
+    float v = 0.0;
+    float a = 0.5;
+    for (int i = 0; i < 5; ++i) {
+        v += a * noise(p);
+        p = p * 2.2 + vec2(1.7, 9.2);
+        a *= 0.5;
+    }
+    return v;
+}
+
+// Elegant iridescence
+vec3 iridescence(float t) {
+    vec3 a = vec3(0.5);
+    vec3 b = vec3(0.5);
+    vec3 c = vec3(1.0, 1.0, 1.0);
+    vec3 d = vec3(0.0, 0.33, 0.67);
+    return a + b * cos(6.28318 * (c * t + d));
+}
+
 void main() {
-    // "Roaming ink" effect using domain warping with reduced complexity
-    vec2 p = vUv * 2.0;
-    float t = uTime * 0.15;
+    vec2 p = vUv * 1.5;
+    float t = uTime * 0.1;
     
-    vec2 q = vec2(fbm(p + t), fbm(p + vec2(5.2, 1.3) - t));
-    vec2 r = vec2(fbm(p + 3.0 * q + vec2(1.7, 9.2) + t * 0.5), fbm(p + 3.0 * q + vec2(8.3, 2.8) + t * 0.3));
-    float f = fbm(p + 3.0 * r);
+    float mouseDist = length(vUv - uMouse);
+    float mouseInfluence = smoothstep(0.9, 0.0, mouseDist);
     
-    // Smooth ink-like color mixing
-    vec3 color = mix(uColorA, uColorB, clamp(f * f * 3.0, 0.0, 1.0));
-    color = mix(color, uColorC, clamp(length(q), 0.0, 1.0));
-    color = mix(color, uColorD, clamp(length(r.x), 0.0, 1.0));
+    // OPTIMIZATION: Calculate core displacement once
+    float power = 1.0 + uPlaygroundMode * 6.0;
+    vec2 offset = (vUv - uMouse) * mouseInfluence * 1.5 * power;
     
-    // Add subtle depth
-    color += (f * 0.05);
+    vec2 p_core = p - offset;
+    vec2 q = vec2(fbm(p_core + t * 0.4), fbm(p_core + vec2(1.2) - t * 0.3));
+    vec2 r = vec2(fbm(p_core + 3.0 * q + vec2(1.7, 9.2) + t * 0.25), fbm(p_core + 3.0 * q + vec2(8.3, 2.8) + t * 0.15));
     
-    // Soft vignette
-    float dist = length(vUv - 0.5);
-    color *= smoothstep(1.3, 0.4, dist);
+    // Use high quality only when needed and once
+    float f = (uPlaygroundMode > 0.5) ? fbm_high(p_core + 4.5 * r) : fbm(p_core + 4.0 * r);
+
+    // ELEGANCE: Chromatic aberration as a post-process effect within the shader
+    float shift = 0.01 * mouseInfluence * (1.0 + uPlaygroundMode * 2.0);
+    float f_r = (uPlaygroundMode > 0.5) ? fbm_high(p_core + 4.5 * r + shift) : fbm(p_core + 4.0 * r + shift);
+    float f_b = (uPlaygroundMode > 0.5) ? fbm_high(p_core + 4.5 * r - shift) : fbm(p_core + 4.0 * r - shift);
+
+    // Ink mixing
+    vec3 borrowedA = mix(uColorA, uColorB, vUv.x);
+    vec3 borrowedB = mix(uColorC, uColorD, vUv.y);
+    vec3 envColor = mix(borrowedA, borrowedB, length(r) * 0.5);
     
-    // Apply brightness and turbulence scaling
-    color *= uBrightness + (f * uTurbulence * 0.5);
+    vec3 baseCol = mix(uColorA, uColorB, clamp(f * f * 4.0, 0.0, 1.0));
+    baseCol = mix(baseCol, uColorC, clamp(length(q), 0.0, 1.0));
+    baseCol = mix(baseCol, envColor, clamp(length(r) * 0.5, 0.0, 1.0));
     
-    gl_FragColor = vec4(color, 1.0);
+    // Elegant oil-slick shimmer
+    vec3 iris = iridescence(f * 2.0 + length(q) * 0.5 + t);
+    baseCol = mix(baseCol, iris, uPlaygroundMode * 0.15 * mouseInfluence);
+
+    // Apply RGB shift
+    vec3 finalColor = vec3(
+        mix(uColorA.r, baseCol.r, f_r),
+        baseCol.g,
+        mix(uColorD.b, baseCol.b, f_b)
+    );
+    
+    // Roaming highlight
+    float highlight = smoothstep(0.4, 0.0, length(q - 0.5));
+    finalColor += highlight * 0.04 * uBrightness;
+    
+    // Vignette
+    float d = length(vUv - 0.5);
+    finalColor *= smoothstep(1.6, 0.3, d);
+    
+    float intensity = uBrightness * (1.0 + f * uTurbulence);
+    gl_FragColor = vec4(finalColor * intensity, 1.0);
 }

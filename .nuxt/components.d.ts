@@ -23,6 +23,7 @@ export const GalleryScene: typeof import("../src/components/canvas/GalleryScene.
 export const LiquidText: typeof import("../src/components/canvas/LiquidText.vue").default
 export const LoadingSpiral: typeof import("../src/components/canvas/LoadingSpiral.vue").default
 export const MainScene: typeof import("../src/components/canvas/MainScene.vue").default
+export const PlaygroundMesh: typeof import("../src/components/canvas/PlaygroundMesh.vue").default
 export const PoemCard: typeof import("../src/components/canvas/PoemCard.vue").default
 export const PostProcessing: typeof import("../src/components/canvas/PostProcessing.vue").default
 export const SineWaveMesh: typeof import("../src/components/canvas/SineWaveMesh.vue").default
@@ -169,6 +170,7 @@ export const LazyGalleryScene: LazyComponent<typeof import("../src/components/ca
 export const LazyLiquidText: LazyComponent<typeof import("../src/components/canvas/LiquidText.vue").default>
 export const LazyLoadingSpiral: LazyComponent<typeof import("../src/components/canvas/LoadingSpiral.vue").default>
 export const LazyMainScene: LazyComponent<typeof import("../src/components/canvas/MainScene.vue").default>
+export const LazyPlaygroundMesh: LazyComponent<typeof import("../src/components/canvas/PlaygroundMesh.vue").default>
 export const LazyPoemCard: LazyComponent<typeof import("../src/components/canvas/PoemCard.vue").default>
 export const LazyPostProcessing: LazyComponent<typeof import("../src/components/canvas/PostProcessing.vue").default>
 export const LazySineWaveMesh: LazyComponent<typeof import("../src/components/canvas/SineWaveMesh.vue").default>

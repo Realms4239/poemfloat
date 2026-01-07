@@ -12,9 +12,13 @@ export const useAppStore = defineStore('app', {
     introStep: 0,
     currentPoem: null as Poem | null,
     poems: [] as Poem[],
-    bgMaterial: null as ShaderMaterial | null
+    bgMaterial: null as ShaderMaterial | null,
+    isPlaygroundMode: false
   }),
   actions: {
+    setPlaygroundMode(active: boolean) {
+      this.isPlaygroundMode = active;
+    },
     setLoadingProgress(progress: number) {
       this.loadingProgress = progress;
       if (progress >= 1) {

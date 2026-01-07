@@ -102,7 +102,7 @@ h1 {
 /*----------------------------------------------*/
 
 /* Bouton supplémentaire */
-#eni-link {
+#paw-link {
     position: absolute;
     top: 20px;
     left: 20px;
@@ -115,22 +115,22 @@ h1 {
     transition: transform 0.3s ease;
 }
 
-#eni-link:hover {
+#paw-link:hover {
     transform: scale(1.5);
 }
 
-#eni-link a {
+#paw-link a {
     display: flex;
     align-items: center;
 }
 
-#eni-link img {
+#paw-link img {
     width: 30px;
     height: 30px;
     transition: transform 0.3s ease;
 }
 
-#eni-link:hover img {
+#paw-link:hover img {
     transform: rotate(15deg);
 }
 
@@ -159,7 +159,7 @@ h1 {
     }
 }
 
-.cat-paw {
+.paw-logo {
     position: absolute;
     top: 20px;
     left: 20px;
@@ -175,21 +175,21 @@ h1 {
     box-shadow: 0 0 1px rgba(0, 0, 0, 0);
 }
 
-.cat-paw img {
+.paw-logo img {
     width: 30px;
     height: 30px;
     transition: transform 0.3s ease;
 }
-.cat-paw {
+.paw-logo {
     -webkit-transform: translateZ(0);
     transform: translateZ(0);
     -webkit-transition-timing-function: ease-out;
     transition-timing-function: ease-out;
 }
 
-.cat-paw:hover,
-.cat-paw:focus,
-.cat-paw:active {
+.paw-logo:hover,
+.paw-logo:focus,
+.paw-logo:active {
     -webkit-animation-name: hvr-icon-pulse;
     animation-name: hvr-icon-pulse;
     -webkit-animation-duration: 1s;

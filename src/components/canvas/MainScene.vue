@@ -7,6 +7,7 @@ import meltingFrag from '@/assets/shaders/background/melting.frag'
 import tailVert from '@/assets/shaders/background/tail.vert'
 import tailFrag from '@/assets/shaders/background/tail.frag'
 import GalleryScene from '@/components/canvas/GalleryScene.vue'
+import PlaygroundMesh from '@/components/canvas/PlaygroundMesh.vue'
 import { useAppStore } from '@/stores/appState'
 import { useMouse } from '@vueuse/core'
 import gsap from 'gsap'
@@ -27,6 +28,7 @@ const mouseParallax = computed(() => {
 
 const context = useTresContext()
 const sceneRef = shallowRef<any>(null)
+const sceneGroup = shallowRef<any>(null)
 const fogRef = shallowRef<FogExp2 | null>(null)
 const materialRef = shallowRef<ShaderMaterial>()
 const tailMaterialRef = shallowRef<ShaderMaterial>()
@@ -57,6 +59,8 @@ const colors = {
 
 const uniforms = {
   uTime: { value: 0 },
+  uMouse: { value: [0.5, 0.5] },
+  uPlaygroundMode: { value: 0.0 },
   uColorA: { value: new Color(colors.cream[0]) },
   uColorB: { value: new Color(colors.cream[1]) },
   uColorC: { value: new Color(colors.cream[2]) },
@@ -72,11 +76,39 @@ const tailUniforms = {
 
 onLoop(({ delta }) => {
   if (materialRef.value?.uniforms?.uTime) {
-    materialRef.value.uniforms.uTime.value += delta * 0.6 // Slower, more elegant motion
+    materialRef.value.uniforms.uTime.value += delta * (appStore.isPlaygroundMode ? 1.2 : 0.6)
   }
+  
+    if (materialRef.value?.uniforms?.uMouse) {
+      const targetX = x.value / window.innerWidth
+      const targetY = 1.0 - (y.value / window.innerHeight)
+      
+      const lerpFactor = appStore.isPlaygroundMode ? 0.12 : 0.04
+      
+      materialRef.value.uniforms.uMouse.value[0] += (targetX - materialRef.value.uniforms.uMouse.value[0]) * lerpFactor
+      materialRef.value.uniforms.uMouse.value[1] += (targetY - materialRef.value.uniforms.uMouse.value[1]) * lerpFactor
+    }
+
+    if (appStore.isPlaygroundMode && materialRef.value?.uniforms?.uTurbulence) {
+      // Breathing turbulence in playground mode
+      const pulse = Math.sin(Date.now() * 0.001) * 0.05
+      materialRef.value.uniforms.uTurbulence.value = 0.4 + pulse
+    }
+
   
   if (tailMaterialRef.value?.uniforms?.uTime) {
     tailMaterialRef.value.uniforms.uTime.value += delta
+  }
+})
+
+// Update playground mode uniform
+watch(() => appStore.isPlaygroundMode, (isPlayground) => {
+  if (materialRef.value?.uniforms?.uPlaygroundMode) {
+    gsap.to(materialRef.value.uniforms.uPlaygroundMode, {
+      value: isPlayground ? 1.0 : 0.0,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
   }
 })
 
@@ -118,29 +150,39 @@ watch(() => appStore.introStep, (step) => {
     targetTurbulence = 0.25
     targetFogDensity = 0.08
     targetFogColor = '#030303'
-  } else if (step === 7) {
-    targetColors = colors.elegant
-    targetTurbulence = 0.05
-    targetFogDensity = 0.008
-    targetFogColor = '#fdfaf6'
-    
-    // THE BUMP - Camera shake/flash simulation via uniforms
-    gsap.to(u.uTurbulence, { 
-      value: 0.8, 
-      duration: 0.1, 
-      yoyo: true, 
-      repeat: 1, 
-      ease: 'power4.out' 
-    })
-    
-    gsap.fromTo(u.uBrightness, { value: 1.8 }, { 
-      value: 1.0, 
-      duration: 1.0, 
-      ease: 'expo.out' 
-    })
-    
-    triggerExplosion()
-  } else if (step >= 8) {
+    } else if (step === 7) {
+      targetColors = colors.elegant
+      targetTurbulence = 0.05
+      targetFogDensity = 0.008
+      targetFogColor = '#fdfaf6'
+      
+        // THE BIG "BADUMP" - Impact Visuals
+        const badumpTl = gsap.timeline()
+        
+        // 1. First Pulse (Mini)
+        badumpTl.to(u.uBrightness, { value: 2.5, duration: 0.05, ease: 'power2.out' })
+        badumpTl.to(u.uTurbulence, { value: 1.5, duration: 0.05, ease: 'power2.out' }, 0)
+        
+        // 2. Second Pulse (The Main Thump)
+        badumpTl.to(u.uBrightness, { value: 4.5, duration: 0.08, ease: 'expo.out' }, 0.12)
+        badumpTl.to(u.uTurbulence, { value: 3.5, duration: 0.08, ease: 'expo.out' }, 0.12)
+        
+        // 3. Settle
+        badumpTl.to(u.uBrightness, { value: 1.0, duration: 1.5, ease: 'power3.out' }, 0.25)
+        badumpTl.to(u.uTurbulence, { value: 0.05, duration: 1.5, ease: 'power3.out' }, 0.25)
+  
+        // 4. Badump Shake (Double Kick)
+        const shakeTl = gsap.timeline()
+        // Kick 1
+        shakeTl.to(sceneGroup.value.position, { x: 0.2, y: -0.1, duration: 0.05, ease: 'power4.out' })
+        shakeTl.to(sceneGroup.value.position, { x: 0, y: 0, duration: 0.1, ease: 'elastic.out(1, 0.3)' })
+        // Kick 2 (Harder)
+        shakeTl.to(sceneGroup.value.position, { x: -0.4, y: 0.3, duration: 0.05, ease: 'power4.out' }, 0.15)
+        shakeTl.to(sceneGroup.value.position, { x: 0, y: 0, duration: 0.6, ease: 'elastic.out(1, 0.2)' }, 0.2)
+        
+        triggerExplosion()
+    } else if (step >= 8) {
+
     targetColors = colors.elegant
     targetTurbulence = 0.08
     targetFogDensity = 0.012
@@ -256,7 +298,7 @@ const showParticles = computed(() => appStore.introStep >= 7)
 </script>
 
 <template>
-  <TresGroup :position="[mouseParallax.x, mouseParallax.y, 0]">
+  <TresGroup ref="sceneGroup" :position="[mouseParallax.x, mouseParallax.y, 0]">
     <TresMesh :scale="[60, 60, 1]" :position="[0, 0, -8]">
       <TresPlaneGeometry :args="[1, 1]" />
       <TresShaderMaterial
@@ -283,6 +325,8 @@ const showParticles = computed(() => appStore.introStep >= 7)
 
     <TresAmbientLight :intensity="1.2" />
     <TresDirectionalLight :position="[5, 5, 5]" :intensity="1.0" />
+
+    <PlaygroundMesh :mouse="{ x: x / (typeof window !== 'undefined' ? window.innerWidth : 1), y: 1.0 - (y / (typeof window !== 'undefined' ? window.innerHeight : 1)) }" />
 
     <TresPoints v-if="showParticles" ref="pointsRef">
       <TresBufferGeometry>

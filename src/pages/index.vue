@@ -1,38 +1,47 @@
 <script setup lang="ts">
 import { useAppStore } from '@/stores/appState'
 import { onMounted, ref, watch, nextTick, onUnmounted, computed } from 'vue'
+import { useMouse } from '@vueuse/core'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import PoemMiniature from '@/components/PoemMiniature.vue'
 import type { Poem } from '@/core/domain/entities/Poem'
 
 const appStore = useAppStore()
+const { x, y } = useMouse({ type: 'client' })
 const haikuStage = ref<HTMLElement | null>(null)
 const introStarted = ref(false)
 const isTransporting = ref(false)
 
-const scrollToCollection = () => {
-    const totalScrollHeight = 16000
-    const duration = 5000
-    const startPosition = window.scrollY
-    const distance = totalScrollHeight + 200 - startPosition
-    let startTime: number | null = null
-    
-    const easeInOutCubic = (t: number): number => {
-      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
-    }
-    
-    const animateScroll = (currentTime: number) => {
-      if (startTime === null) startTime = currentTime
-      const elapsed = currentTime - startTime
-      const progress = Math.min(elapsed / duration, 1)
-      const easedProgress = easeInOutCubic(progress)
-      window.scrollTo(0, startPosition + distance * easedProgress)
-      if (progress < 1) requestAnimationFrame(animateScroll)
-    }
-    requestAnimationFrame(animateScroll)
-  }
+// Transport Logic
+const handlePoemSelect = (poem: Poem) => {
+  isTransporting.value = true
+  appStore.setCurrentPoem(poem)
+  setTimeout(() => { isTransporting.value = false }, 1500)
+}
 
+const scrollToCollection = () => {
+  if (!process.client) return
+  const totalScrollHeight = 16000
+  const duration = 5000
+  const startPosition = window.scrollY
+  const distance = totalScrollHeight + 200 - startPosition
+  let startTime: number | null = null
+  
+  const easeInOutCubic = (t: number): number => {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+  }
+  
+  const animateScroll = (currentTime: number) => {
+    if (startTime === null) startTime = currentTime
+    const elapsed = currentTime - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    const easedProgress = easeInOutCubic(progress)
+    window.scrollTo(0, startPosition + distance * easedProgress)
+    if (progress < 1) requestAnimationFrame(animateScroll)
+  }
+  requestAnimationFrame(animateScroll)
+}
 
 if (process.client) {
   gsap.registerPlugin(ScrollTrigger)
@@ -40,12 +49,6 @@ if (process.client) {
 
 const showScrollPrompt = computed(() => appStore.isReady && appStore.introStep === 0 && introStarted.value)
 const showGallerySection = computed(() => appStore.introStep >= 8)
-
-const handlePoemSelect = (poem: Poem) => {
-  isTransporting.value = true
-  appStore.setCurrentPoem(poem)
-  setTimeout(() => { isTransporting.value = false }, 1500)
-}
 
 const wrapChars = (text: string) => {
   return text.split('').map(char => {
@@ -75,28 +78,40 @@ function setupPinnedTimeline() {
   const lines = stage.querySelectorAll('.poem-line')
   gsap.set(lines, { autoAlpha: 0, y: 30, display: 'none', visibility: 'hidden' })
 
-  const mainTimeline = gsap.timeline({
-      scrollTrigger: {
-        trigger: stage,
-        start: 'top top',
-        end: '+=16000',
-        pin: true,
-        scrub: 1.5,
-        onUpdate: (self) => {
-            const p = self.progress
-            if (p < 0.05) appStore.setIntroStep(0)
-            else if (p < 0.16) appStore.setIntroStep(1)
-            else if (p < 0.28) appStore.setIntroStep(2)
-            else if (p < 0.40) appStore.setIntroStep(3)
-            else if (p < 0.52) appStore.setIntroStep(4)
-            else if (p < 0.64) appStore.setIntroStep(5)
-                    else if (p < 0.76) appStore.setIntroStep(5)
-                    else if (p < 0.83) appStore.setIntroStep(6) // Hold black for "This is a quiet orbit of"
-                    else if (p < 0.98) appStore.setIntroStep(7) // Unfold exactly when "change" is shown
-                    else appStore.setIntroStep(8)
-                  }
+    const mainTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: stage,
+          start: 'top top',
+          end: '+=20000', // Increased scroll height for better control
+          pin: true,
+          scrub: 1,
+          snap: {
+            // Snapping to the middle of the "static" plateaus for each line
+            snapTo: [0.085, 0.185, 0.285, 0.385, 0.485, 0.605, 0.745, 0.885, 0.955],
+            duration: { min: 0.2, max: 0.4 },
+            delay: 0,
+            ease: 'power1.inOut'
+          },
+          onUpdate: (self) => {
+              const p = self.progress
+              if (p < 0.05) appStore.setIntroStep(0)
+              else if (p < 0.15) appStore.setIntroStep(1)
+              else if (p < 0.25) appStore.setIntroStep(2)
+              else if (p < 0.40) appStore.setIntroStep(3) // Tail step aligned with line-3
+              else if (p < 0.50) appStore.setIntroStep(4)
+              else if (p < 0.60) appStore.setIntroStep(5)
+              else if (p < 0.75) appStore.setIntroStep(6) 
+              else if (p < 0.85) appStore.setIntroStep(7)
+              else if (p < 0.92) {
+                appStore.setIntroStep(7)
+                appStore.setPlaygroundMode(false)
+              }
+              else {
+                appStore.setIntroStep(8)
+                appStore.setPlaygroundMode(true)
+              }
+          }
         }
-
     })
 
     gsap.fromTo('.scroll-prompt', { autoAlpha: 0 }, { autoAlpha: 1, duration: 2, delay: 1.5 })
@@ -109,21 +124,34 @@ function setupPinnedTimeline() {
         
         mainTimeline
           .set(el, { display: 'flex', visibility: 'visible' }, startTime)
-          .to(el, { autoAlpha: 1, duration: 0.01 }, startTime)
+          .to(el, { autoAlpha: 1, duration: 0.005 }, startTime)
           .fromTo(chars, {
             opacity: 0,
             filter: 'blur(30px)',
-            scale: 1.8,
-            y: 60
+            scale: 1.4,
+            y: 40
           }, {
             opacity: 1,
             filter: 'blur(0px)',
             scale: 1,
             y: 0,
-            duration: 0.06,
-            stagger: 0.002,
+            duration: 0.03,
+            stagger: 0.0015,
             ease: 'expo.out'
-          }, startTime + 0.002)
+          }, startTime + 0.001)
+          // THE SCROLL HALT / BUMP: A static plateau where the line remains fully visible
+          // This creates the "bump" sensation as the scroll progress "waits"
+          .to(el, {
+            scale: 1.05,
+            duration: 0.015,
+            ease: 'power2.out'
+          }, startTime + 0.035)
+          .to(el, {
+            scale: 1,
+            duration: 0.015,
+            ease: 'power2.in'
+          }, startTime + 0.05)
+          // Hold the state until animateOut starts (usually startTime + 0.08)
       }
 
       const animateOut = (selector: string, startTime: number) => {
@@ -135,130 +163,161 @@ function setupPinnedTimeline() {
           mainTimeline.to(chars, {
             opacity: 0, 
             filter: 'blur(20px)',
-            y: -60,
-            scale: 0.8,
-            duration: 0.05,
-            stagger: 0.0015,
+            y: -40,
+            scale: 0.9,
+            duration: 0.02,
+            stagger: 0.001,
             ease: 'power2.in'
           }, startTime)
         }
         
         mainTimeline
-          .to(el, { autoAlpha: 0, duration: 0.02 }, startTime + 0.04)
-          .set(el, { display: 'none', visibility: 'hidden' }, startTime + 0.06)
+          .to(el, { autoAlpha: 0, duration: 0.01 }, startTime + 0.01)
+          .set(el, { display: 'none', visibility: 'hidden' }, startTime + 0.03)
       }
 
 
-    // REFINED SEQUENCE - BALANCED SPACING
-    animateIn('.line-1', 0.05)
-    animateOut('.line-1', 0.14)
+      // REFINED SEQUENCE - Intentional halts and spacing
+      animateIn('.line-1', 0.05)
+      animateOut('.line-1', 0.13)
 
-    animateIn('.line-2', 0.17)
-    animateOut('.line-2', 0.26)
+      animateIn('.line-2', 0.15)
+      animateOut('.line-2', 0.23)
 
-    animateIn('.line-3', 0.29)
-    animateOut('.line-3', 0.38)
+      animateIn('.line-3', 0.25)
+      animateOut('.line-3', 0.33)
 
-    animateIn('.stanza-a', 0.41)
-    animateOut('.stanza-a', 0.50)
+      animateIn('.stanza-a', 0.35)
+      animateOut('.stanza-a', 0.43)
 
-    animateIn('.stanza-b', 0.53)
-    animateOut('.stanza-b', 0.62)
+      animateIn('.stanza-b', 0.45)
+      animateOut('.stanza-b', 0.53)
 
-    const stanzaC = stage.querySelector('.stanza-c')
-    if (stanzaC) {
-      mainTimeline.set(stanzaC, { display: 'flex', visibility: 'visible' }, 0.65)
-      mainTimeline.to(stanzaC, { autoAlpha: 1, duration: 0.01 }, 0.65)
-      mainTimeline.fromTo(stanzaC.querySelectorAll('.char, .char-tremble'), {
-        opacity: 0,
-        filter: 'blur(30px)',
-        y: 40
-      }, {
-        opacity: 1,
-        filter: 'blur(0px)',
-        y: 0,
-        duration: 0.06,
-        stagger: 0.002,
-        ease: 'power3.out'
-      }, 0.652)
-      
-      const trembleChars = stanzaC.querySelectorAll('.char-tremble')
-      trembleChars.forEach((char, i) => {
-        mainTimeline.to(char, {
-          x: 'random(-6, 6)',
-          y: 'random(-6, 6)',
-          duration: 0.005,
-          repeat: 12,
-          yoyo: true,
-          ease: 'none'
-        }, 0.70 + (i * 0.001))
-      })
-      animateOut('.stanza-c', 0.76)
-    }
-
-          // Step 7: FINALE - REFINED MOMENTUM
-          const finale = stage.querySelector('.line-finale')
-          if (finale) {
-            mainTimeline.set(finale, { display: 'flex', visibility: 'visible' }, 0.77)
-            mainTimeline.to(finale, { autoAlpha: 1, duration: 0.01 }, 0.77)
-            
-            // Ensure finale-3 is hidden initially
-            mainTimeline.set(finale.querySelector('.finale-3'), { autoAlpha: 0 }, 0.77)
-            
-              // 1. "This is a quiet orbit of change" (on black)
-              mainTimeline.fromTo(finale.querySelectorAll('.finale-2 .char'), {
-                opacity: 0,
-                filter: 'blur(20px)',
-                y: 30,
-              }, {
-                opacity: 1,
-                filter: 'blur(0px)',
-                y: 0,
-                duration: 0.05,
-                stagger: 0.002,
-                ease: 'power2.out'
-              }, 0.78)
-
-              // Fade out finale-2 before finale-3
-              mainTimeline.to(finale.querySelectorAll('.finale-2 .char'), {
-                opacity: 0,
-                filter: 'blur(15px)',
-                y: -20,
-                duration: 0.03,
-                stagger: 0.001,
-                ease: 'power2.in'
-              }, 0.85)
-              
-              // 2. " and my way of transience" (on bright)
-              // SYNCED UNFOLD: Happens at 0.865
-              mainTimeline.to(finale.querySelector('.finale-3'), { autoAlpha: 1, duration: 0.01 }, 0.875)
-              
-                mainTimeline.fromTo(finale.querySelectorAll('.finale-3 .char'), {
-                  opacity: 0,
-                  filter: 'blur(20px)',
-                  y: 30,
-                }, {
-                  opacity: 1,
-                  filter: 'blur(0px)',
-                  y: 0,
-                  duration: 0.06,
-                  stagger: 0.002,
-                  ease: 'power2.out'
-                }, 0.88)
+      const stanzaC = stage.querySelector('.stanza-c')
+      if (stanzaC) {
+        mainTimeline.set(stanzaC, { display: 'flex', visibility: 'visible' }, 0.55)
+        mainTimeline.to(stanzaC, { autoAlpha: 1, duration: 0.01 }, 0.55)
+        mainTimeline.fromTo(stanzaC.querySelectorAll('.char, .char-tremble'), {
+          opacity: 0,
+          filter: 'blur(20px)',
+          y: 30
+        }, {
+          opacity: 1,
+          filter: 'blur(0px)',
+          y: 0,
+          duration: 0.03,
+          stagger: 0.001,
+          ease: 'power3.out'
+        }, 0.551)
         
-        
-              // Exit animations at the very end
-              mainTimeline.to(finale.querySelectorAll('.finale-3 .char'), {
-                opacity: 0,
-                filter: 'blur(25px)',
-                y: -60,
-                stagger: 0.001,
-                duration: 0.03,
-                ease: 'power2.in'
-              }, 0.985)
-            
-          mainTimeline.to(finale, { autoAlpha: 0, duration: 0.005 }, 0.999)
+        // Scroll Bump for stanza-c
+        mainTimeline.to(stanzaC, { scale: 1.05, duration: 0.015 }, 0.58)
+        mainTimeline.to(stanzaC, { scale: 1, duration: 0.015 }, 0.595)
+
+        const trembleChars = stanzaC.querySelectorAll('.char-tremble')
+        trembleChars.forEach((char, i) => {
+          mainTimeline.to(char, {
+            x: 'random(-4, 4)',
+            y: 'random(-4, 4)',
+            duration: 0.005,
+            repeat: 8,
+            yoyo: true,
+            ease: 'none'
+          }, 0.60 + (i * 0.001))
+        })
+        animateOut('.stanza-c', 0.65)
       }
+
+      // Step 7: FINALE
+      const finale = stage.querySelector('.line-finale')
+      if (finale) {
+        mainTimeline.set(finale, { display: 'flex', visibility: 'visible' }, 0.70)
+        mainTimeline.to(finale, { autoAlpha: 1, duration: 0.01 }, 0.70)
+        
+        mainTimeline.fromTo(finale.querySelectorAll('.finale-2 .char'), {
+          opacity: 0,
+          filter: 'blur(20px)',
+          y: 30,
+        }, {
+          opacity: 1,
+          filter: 'blur(0px)',
+          y: 0,
+          duration: 0.03,
+          stagger: 0.0015,
+          ease: 'power2.out'
+        }, 0.701)
+
+        // Finale Bump
+        mainTimeline.to(finale, { scale: 1.08, duration: 0.02, ease: 'expo.out' }, 0.74)
+        mainTimeline.to(finale, { scale: 1, duration: 0.02, ease: 'expo.in' }, 0.76)
+
+        mainTimeline.to(finale.querySelectorAll('.finale-2 .char'), {
+          opacity: 0,
+          filter: 'blur(15px)',
+          y: -30,
+          duration: 0.02,
+          stagger: 0.001,
+          ease: 'power2.in'
+        }, 0.78)
+        
+        mainTimeline.set(finale, { display: 'none', visibility: 'hidden' }, 0.81)
+      }
+
+
+      // Step 8: MOMENTUM (ON WHITE) - WITH SCATTER
+      const momentum = stage.querySelector('.line-momentum')
+      if (momentum) {
+        mainTimeline.set(momentum, { display: 'flex', visibility: 'visible' }, 0.85)
+        mainTimeline.to(momentum, { autoAlpha: 1, duration: 0.01 }, 0.85)
+        
+        const allChars = momentum.querySelectorAll('.char')
+        const transienceChars = momentum.querySelectorAll('.transience-scatter .char')
+        const otherChars = Array.from(allChars).filter(c => !c.closest('.transience-scatter'))
+
+        mainTimeline.fromTo(allChars, {
+          opacity: 0,
+          filter: 'blur(20px)',
+          y: 30,
+        }, {
+          opacity: 1,
+          filter: 'blur(0px)',
+          y: 0,
+          duration: 0.04,
+          stagger: 0.0015,
+          ease: 'power2.out'
+        }, 0.86)
+
+        // Momentum Bump before scatter
+        mainTimeline.to(momentum, { y: -10, scale: 1.03, duration: 0.02 }, 0.89)
+        mainTimeline.to(momentum, { y: 0, scale: 1, duration: 0.02 }, 0.91)
+
+        // Scatter transience into the air
+        mainTimeline.to(transienceChars, {
+          x: () => (Math.random() - 0.5) * 800,
+          y: () => -600 - Math.random() * 600,
+          rotation: () => Math.random() * 720,
+          filter: 'blur(25px)',
+          opacity: 0,
+          scale: 0.3,
+          duration: 0.06,
+          stagger: 0.003,
+          ease: 'power2.out'
+        }, 0.94)
+
+        mainTimeline.to(otherChars, {
+          opacity: 0,
+          filter: 'blur(25px)',
+          y: -100,
+          stagger: 0.001,
+          duration: 0.04,
+          ease: 'power2.in'
+        }, 0.94)
+        
+        mainTimeline.to(momentum, { autoAlpha: 0, duration: 0.005 }, 0.995)
+      }
+
+
+
 
 
 }
@@ -272,7 +331,7 @@ onUnmounted(() => {
   <div class="page-home">
     <div v-if="appStore.introStep === 0 && introStarted" class="collection-nav" @click="scrollToCollection">
       <span class="collection-label">COLLECTION</span>
-      <img src="/paw-logo.png" alt="Paw Logo" class="nav-logo" />
+      <img :src="'/paw-logo.png'" alt="Paw Logo" class="nav-logo" />
     </div>
 
     <div v-show="showScrollPrompt" class="scroll-prompt">
@@ -308,10 +367,16 @@ onUnmounted(() => {
           </p>
         </div>
         
-            <div class="poem-line line-finale dead-center hero">
-                <div class="finale-2 greeny-text" v-html="wrapChars('This is a quiet orbit of change')"></div>
-                <div class="finale-3 smoke-text" v-html="wrapChars(' and my way of transience')"></div>
-              </div>
+                <div class="poem-line line-finale dead-center hero">
+          <div class="finale-2 greeny-text" v-html="wrapChars('This is a quiet orbit of change')"></div>
+        </div>
+        
+        <div class="poem-line line-momentum dead-center hero">
+          <div class="finale-2 smoke-text">
+            <span v-html="wrapChars('and my way of ')"></span>
+            <span class="transience-scatter" v-html="wrapChars('transience')"></span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -349,6 +414,7 @@ onUnmounted(() => {
   min-height: 100vh;
   position: relative;
   z-index: 10;
+  pointer-events: auto;
 }
 
 .scroll-prompt {
